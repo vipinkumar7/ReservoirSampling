@@ -3,11 +3,7 @@ package reservoir.sampler.simple;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.util.PriorityQueue;
 import java.util.Random;
-
-import reservoir.sampler.weighted.Tuple;
-import reservoir.sampler.weighted.TupleComparator;
 
 /**
  * 
@@ -16,53 +12,70 @@ import reservoir.sampler.weighted.TupleComparator;
  */
 public class SimpleSampler {
 
-	public static void main(String[] args) {
-		long time1 = System.currentTimeMillis();
-		try {
-			int k, random_seed = 12345;
-			if (args.length > 0)
-				k = Integer.parseInt(args[0]);
-			else
-				k = 5;
-			Random random = (args.length > 1) ? new Random(random_seed) : new Random();
-			BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
-			char[] reserviour = new char[k];
-			boolean first = true;
-			int length = 0;
-			String line;
-			while ((line = br.readLine()) != null && line.length() != 0) {
+    public static String create(int sample_size, boolean is_random_seed) {
+	char[] reserviour = new char[sample_size];
+	try {
+	    int random_seed = 12345;
+	    Random random = is_random_seed ? new Random() : new Random(
+		    random_seed);
+	    BufferedReader bufferReader = new BufferedReader(
+		    new InputStreamReader(System.in));
 
-				if (first) {
-					for (int i = 0; i < k; i++) {
-						reserviour[i] = line.charAt(i);
-					}
-					for (int i = k; i < line.length(); i++) {
-						int j = random.nextInt(i + 1);
-						if (j < k)
-							reserviour[j] = line.charAt(i);
+	    boolean is_first_line = true;
+	    int current_position = 0;
+	    String current_line;
 
-					}
-					length = line.length();
-					first = false;
-				} else {
+	    while ((current_line = bufferReader.readLine()) != null
+		    && current_line.length() != 0) {
 
-					for (int i = 0; i < line.length(); i++) {
-						length++;
-						int j = random.nextInt(length + 1);
-						if (j < k)
-							reserviour[j] = line.charAt(i);
-					}
-				}
+		if (is_first_line) {
+
+		    for (int i = 0; i < current_line.length()
+			    && i < sample_size; i++, current_position++) {
+			reserviour[i] = current_line.charAt(i);
+		    }
+
+		    // if sample size is smaller than line
+		    for (int i = current_position; i < current_line.length(); i++, current_position++) {
+			int random_value = random.nextInt(i + 1);
+			if (random_value < sample_size)
+			    reserviour[random_value] = current_line.charAt(i);
+
+		    }
+		    is_first_line = false;
+		} else {
+
+		    int local_current_position = 0;
+		    // if sample size spills over next line
+		    if (current_position < sample_size) {
+			for (int i = 0; i < current_line.length()
+				&& current_position < sample_size; i++, current_position++, local_current_position++) {
+			    reserviour[current_position] = current_line
+				    .charAt(i);
 			}
 
-			long time2 = System.currentTimeMillis();
-			System.out.println(reserviour);
-			System.out.println();
-			System.out.println((time2 - time1));
-
-		} catch (IOException e) {
-
+		    }
+		    for (int i = local_current_position; i < current_line
+			    .length(); i++, current_position++) {
+			int random_value = random.nextInt(i + 1);
+			if (random_value < sample_size)
+			    reserviour[random_value] = current_line.charAt(i);
+		    }
 		}
+	    }
+
+	} catch (IOException e) {
+
 	}
+	return String.valueOf(reserviour);
+    }
+
+    public static void main(String[] args) {
+	if (args.length > 0) {
+	    int sample_size = Integer.parseInt(args[0]);
+	    System.out.println(create(sample_size, false));
+	}
+
+    }
 
 }

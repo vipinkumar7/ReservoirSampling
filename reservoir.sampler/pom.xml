@@ -22,7 +22,7 @@
 				<configuration>
 					<archive>
 						<manifest>
-							<mainClass>reservoir.sampler.simple.SimpleSampler</mainClass>
+							<mainClass>reservoir.sampler.weighted.WeightedSampler</mainClass>
 						</manifest>
 					</archive>
 				</configuration>
