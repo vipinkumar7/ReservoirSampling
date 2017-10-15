@@ -6,6 +6,12 @@ import java.io.InputStreamReader;
 import java.util.PriorityQueue;
 import java.util.Random;
 
+import joptsimple.OptionParser;
+import joptsimple.OptionSet;
+
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 /**
  * 
  * @author Vipin Kumar
@@ -13,12 +19,13 @@ import java.util.Random;
  */
 public class WeightedSampler {
 
-    public static String create(int sample_size, boolean is_random_seed) {
-	PriorityQueue<Tuple> minHeap = new PriorityQueue<Tuple>(sample_size,
+    final static Logger logger = LogManager.getLogger(WeightedSampler.class);
+
+    public static String create(int reservoir_size, boolean is_random_seed) {
+	PriorityQueue<Tuple> minHeap = new PriorityQueue<Tuple>(reservoir_size,
 		new TupleComparator());
 	try {
-	    int random_seed = 12345, current_random = 0, current_reservoir_size = 0;
-	    boolean is_first_line = true;
+	    int random_seed = 12345, current_random = 0, current_position = 0;
 	    Random random = is_random_seed ? new Random() : new Random(
 		    random_seed);
 	    BufferedReader bufferReader = new BufferedReader(
@@ -28,53 +35,27 @@ public class WeightedSampler {
 	    while ((current_line = bufferReader.readLine()) != null
 		    && current_line.length() != 0) {
 
-		if (is_first_line) {
-		    for (int i = 0; i < current_line.length()
-			    && i < sample_size; i++, current_reservoir_size++) {
+		for (int i = 0; i < current_line.length(); i++) {
+		    if (current_position < reservoir_size) {
 			current_random = random.nextInt();
 			minHeap.add(new Tuple(current_line.charAt(i),
 				current_random));
-
-		    }
-		    for (int i = current_reservoir_size; i < current_line
-			    .length(); i++, current_reservoir_size++) {
-
+			current_position++;
+		    } else {
 			current_random = random.nextInt();
 			if (current_random > minHeap.peek().key) {
 			    minHeap.poll();
 			    minHeap.add(new Tuple(current_line.charAt(i),
 				    current_random));
 			}
-
 		    }
-		    is_first_line = false;
-		} else {
-		    int local_current_position = 0;
-		    if (current_reservoir_size < sample_size) {
 
-			for (int i = 0; i < current_line.length()
-				&& current_reservoir_size < sample_size; i++, current_reservoir_size++, local_current_position++) {
-			    current_random = random.nextInt();
-			    minHeap.add(new Tuple(current_line.charAt(i),
-				    current_random));
-
-			}
-
-		    }
-		    for (int i = local_current_position; i < current_line
-			    .length(); i++, current_reservoir_size++) {
-			current_random = random.nextInt();
-			if (current_random > minHeap.peek().key) {
-			    minHeap.poll();
-			    minHeap.add(new Tuple(current_line.charAt(i),
-				    current_random));
-			}
-
-		    }
 		}
+
 	    }
 
 	} catch (IOException e) {
+	    logger.error("Stream read fail");
 
 	}
 	StringBuffer buffer = new StringBuffer();
@@ -83,10 +64,30 @@ public class WeightedSampler {
 
     }
 
-    public static void main(String[] args) {
-	if (args.length > 0) {
-	    int sample_size = Integer.parseInt(args[0]);
-	    System.out.println(create(sample_size, false));
+    public static void main(String[] args) throws IOException {
+	OptionParser optionParser = new OptionParser();
+
+	optionParser.accepts("random_seed").withOptionalArg()
+		.describedAs("is random seed required for random generator ");
+	optionParser.accepts("sample_size").withRequiredArg()
+		.ofType(Integer.class).describedAs("Sample size for output")
+		.defaultsTo(5);
+	optionParser.accepts("h", "show help").forHelp();
+
+	int sample_size = 5;
+	boolean random_seed = false;
+	try {
+	    optionParser.printHelpOn(System.out);
+	    OptionSet options = optionParser.parse(args);
+	    if (options.has("sample_size"))
+		sample_size = Integer.parseInt(options.valueOf("sample_size")
+			.toString());
+	    if (options.has("random_seed"))
+		random_seed = true;
+	    if (!options.has("h"))
+		System.out.println(create(sample_size, random_seed));
+	} catch (NumberFormatException nfe) {
+	    logger.info("first argument is sample size , it shoud be integer ");
 	}
     }
 

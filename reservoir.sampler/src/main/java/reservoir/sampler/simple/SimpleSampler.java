@@ -5,6 +5,12 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.Random;
 
+import joptsimple.OptionParser;
+import joptsimple.OptionSet;
+
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 /**
  * 
  * @author root
@@ -12,8 +18,10 @@ import java.util.Random;
  */
 public class SimpleSampler {
 
-    public static String create(int sample_size, boolean is_random_seed) {
-	char[] reserviour = new char[sample_size];
+    final static Logger logger = LogManager.getLogger(SimpleSampler.class);
+
+    public static String create(int reservoir_size, boolean is_random_seed) {
+	char[] reserviour = new char[reservoir_size];
 	try {
 	    int random_seed = 12345;
 	    Random random = is_random_seed ? new Random() : new Random(
@@ -21,59 +29,57 @@ public class SimpleSampler {
 	    BufferedReader bufferReader = new BufferedReader(
 		    new InputStreamReader(System.in));
 
-	    boolean is_first_line = true;
 	    int current_position = 0;
 	    String current_line;
 
 	    while ((current_line = bufferReader.readLine()) != null
 		    && current_line.length() != 0) {
 
-		if (is_first_line) {
+		for (int i = 0; i < current_line.length(); i++) {
+		    if (current_position < reservoir_size) {
+			reserviour[current_position] = current_line.charAt(i);
+			current_position++;
+		    } else {
 
-		    for (int i = 0; i < current_line.length()
-			    && i < sample_size; i++, current_position++) {
-			reserviour[i] = current_line.charAt(i);
-		    }
-
-		    // if sample size is smaller than line
-		    for (int i = current_position; i < current_line.length(); i++, current_position++) {
-			int random_value = random.nextInt(i + 1);
-			if (random_value < sample_size)
+			int random_value = random.nextInt(current_position + 1);
+			if (random_value < reservoir_size)
 			    reserviour[random_value] = current_line.charAt(i);
-
+			current_position++;
 		    }
-		    is_first_line = false;
-		} else {
 
-		    int local_current_position = 0;
-		    // if sample size spills over next line
-		    if (current_position < sample_size) {
-			for (int i = 0; i < current_line.length()
-				&& current_position < sample_size; i++, current_position++, local_current_position++) {
-			    reserviour[current_position] = current_line
-				    .charAt(i);
-			}
-
-		    }
-		    for (int i = local_current_position; i < current_line
-			    .length(); i++, current_position++) {
-			int random_value = random.nextInt(i + 1);
-			if (random_value < sample_size)
-			    reserviour[random_value] = current_line.charAt(i);
-		    }
 		}
 	    }
 
 	} catch (IOException e) {
-
+	    logger.error("Stream read fail");
 	}
 	return String.valueOf(reserviour);
     }
 
-    public static void main(String[] args) {
-	if (args.length > 0) {
-	    int sample_size = Integer.parseInt(args[0]);
-	    System.out.println(create(sample_size, false));
+    public static void main(String[] args) throws IOException {
+	OptionParser optionParser = new OptionParser();
+
+	optionParser.accepts("random_seed").withOptionalArg()
+		.describedAs("is random seed required for random generator ");
+	optionParser.accepts("sample_size").withRequiredArg()
+		.ofType(Integer.class).describedAs("Sample size for output")
+		.defaultsTo(5);
+	optionParser.accepts("h", "show help").forHelp();
+
+	int sample_size = 5;
+	boolean random_seed = false;
+	try {
+	    optionParser.printHelpOn(System.out);
+	    OptionSet options = optionParser.parse(args);
+	    if (options.has("sample_size"))
+		sample_size = Integer.parseInt(options.valueOf("sample_size")
+			.toString());
+	    if (options.has("random_seed"))
+		random_seed = true;
+	    if (!options.has("h"))
+		System.out.println(create(sample_size, random_seed));
+	} catch (NumberFormatException nfe) {
+	    logger.info("first argument is sample size , it shoud be integer ");
 	}
 
     }

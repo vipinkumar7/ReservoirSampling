@@ -7,12 +7,7 @@ import org.junit.Test;
 
 import reservoir.sampler.simple.SimpleSampler;
 
-/**
- * Unit test for Sampler.
- */
-public class SimpleSamplerTest
-
-{
+public class WeightedSamplerTest {
 
     @Test
     public void testWithSameSeed() {
@@ -44,4 +39,5 @@ public class SimpleSamplerTest
 	System.setIn(System.in);
 	Assert.assertNotEquals("Checking Result for " + sample, sample, newSample);
     }
+    
 }
