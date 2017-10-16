@@ -55,7 +55,10 @@ The another version is for very large dataset:
 
 eg. 
 
+  java -jar target/distributed.sampler-1-jar-with-dependencies.jar  -sample_size=10 -input_file=/root/test/data1.txt
 
+  for help 
+   java -jar target/distributed.sampler-1-jar-with-dependencies.jar  -h
 
 
 
