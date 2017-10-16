@@ -105,7 +105,7 @@ public class WeightedSampler {
 		int num_char = Integer.parseInt(options.valueOf("generate")
 			.toString());
 		generate(num_char);
-	    } else if (!options.has("h"))
+	    } else if (!options.has("h") && options.has("generate"))
 		System.out.println(create(sample_size, random_seed));
 	} catch (NumberFormatException nfe) {
 	    logger.info("first argument is sample size , it shoud be integer ");
