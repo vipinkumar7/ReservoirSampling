@@ -21,8 +21,12 @@ The program takes following inputs :
 
 2. WeightedSampler
 	A simple reservoir-based algorithm can be designed using random sort and implemented using priority queue data structure. This algor	       ithm assigns random number as keys to each item and maintain k items with minimum value for keys. In essence, this is equivalent to ass	      igning a random number to each item as key, sorting items using these keys and taking top k items. The worse case run time of the algor	     ithm is O(nlog k) while the best case runtime is  O(n)
+
+REQUIREMENTS:
+	java 8
+	maven
 	
-Usage::
+USAGE:
  
 cd reservoir.sampler
 
@@ -57,15 +61,21 @@ The another version is for very large dataset:
 	3. Collects all m samples of size <= k. We should have total items n'<=mk.
 	4. Now sample k items from  n' items from step 3 using key that was already computed in Step 2. This means instead of re-generating key 	using random number generator in sampling algorithm, we use the key we already had assigned in step 2.
 
-Usage
+REQUIREMENTS:
+	java 8
+	maven
+	spark
+	scala 2.11
+
+USAGE:
 
   cd distributed.sampler
   mvn package 
 
   java -jar target/distributed.sampler-1-jar-with-dependencies.jar  -sample_size=10 -input_file=/root/test/data1.txt
 
-  for help 
-   java -jar target/distributed.sampler-1-jar-with-dependencies.jar  -h
+  HELP 
+  java -jar target/distributed.sampler-1-jar-with-dependencies.jar  -h
 
 
 
