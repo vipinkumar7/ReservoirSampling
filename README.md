@@ -22,7 +22,11 @@ The program takes following inputs :
 2. WeightedSampler
 	A simple reservoir-based algorithm can be designed using random sort and implemented using priority queue data structure. This algor	       ithm assigns random number as keys to each item and maintain k items with minimum value for keys. In essence, this is equivalent to ass	      igning a random number to each item as key, sorting items using these keys and taking top k items. The worse case run time of the algor	     ithm is O(nlog k) while the best case runtime is  O(n)
 	
-eg. 
+Usage::
+ 
+cd reservoir.sampler
+
+mvn package
 
 echo THEQUICKBROWNFOXJUMPSOVERTHELAZYDOG | java  -jar target/reservoir.sampler-1-jar-with-dependencies.jar -sample_size=5
 
@@ -30,7 +34,7 @@ echo THEQUICKBROWNFOXJUMPSOVERTHELAZYDOG | java  -jar target/reservoir.sampler-1
 
 dd if=/dev/urandom count=100 bs=1MB | base64  | java  -jar target/reservoir.sampler-1-jar-with-dependencies.jar -sample_size=5 -random_seed
 
-for help 
+For help 
 
 echo THEQUICKBROWNFOXJUMPSOVERTHELAZYDOG | java  -jar target/reservoir.sampler-1-jar-with-dependencies.jar -h 
 
@@ -53,7 +57,10 @@ The another version is for very large dataset:
 	3. Collects all m samples of size <= k. We should have total items n'<=mk.
 	4. Now sample k items from  n' items from step 3 using key that was already computed in Step 2. This means instead of re-generating key 	using random number generator in sampling algorithm, we use the key we already had assigned in step 2.
 
-eg. 
+Usage
+
+  cd distributed.sampler
+  mvn package 
 
   java -jar target/distributed.sampler-1-jar-with-dependencies.jar  -sample_size=10 -input_file=/root/test/data1.txt
 
