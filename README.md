@@ -23,7 +23,7 @@ The program takes following inputs :
 	A simple reservoir-based algorithm can be designed using random sort and implemented using priority queue data structure. This algor	       ithm assigns random number as keys to each item and maintain k items with minimum value for keys. In essence, this is equivalent to ass	      igning a random number to each item as key, sorting items using these keys and taking top k items. The worse case run time of the algor	     ithm is O(nlog k) while the best case runtime is  O(n)
 
 REQUIREMENTS:
-	java 8
+	java 8 |
 	maven
 	
 USAGE:
@@ -62,9 +62,9 @@ The another version is for very large dataset:
 	4. Now sample k items from  n' items from step 3 using key that was already computed in Step 2. This means instead of re-generating key 	using random number generator in sampling algorithm, we use the key we already had assigned in step 2.
 
 REQUIREMENTS:
-	java 8
-	maven
-	spark
+	java 8 |
+	maven |
+	spark |
 	scala 2.11
 
 USAGE:
